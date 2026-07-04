@@ -157,19 +157,23 @@ export function MetricsPanel() {
         />
       </div>
 
-      {/* Build time badge */}
-      {metrics.buildTimeMs > 0 && (
-        <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
-          <span className="font-mono">⏱</span>
-          <span>
-            Estimated build time:{" "}
-            <strong className="text-slate-800">
-              {formatMs(metrics.buildTimeMs)}
-            </strong>{" "}
-            for {config.sitePageCount.toLocaleString()} pages
-          </span>
-        </div>
-      )}
+      {/* Build time badge - always reserve this slot so the panel height
+          stays constant across strategies and ConfigPanel below doesn't shift */}
+      <div
+        className={cn(
+          "flex items-center gap-2 text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2",
+          metrics.buildTimeMs <= 0 && "invisible",
+        )}
+      >
+        <span className="font-mono">⏱</span>
+        <span>
+          Estimated build time:{" "}
+          <strong className="text-slate-800">
+            {formatMs(metrics.buildTimeMs)}
+          </strong>{" "}
+          for {config.sitePageCount.toLocaleString()} pages
+        </span>
+      </div>
     </div>
   );
 }
