@@ -27,7 +27,7 @@ export function LabShell() {
               render<span className="text-slate-400">.</span>lab
             </span>
             <span className="hidden sm:block text-xs text-slate-400 font-medium border-l border-slate-200 pl-3">
-              Interactive rendering strategy simulator
+              Interactive rendering strategy simulator - Built by Sanjeev Srithevan
             </span>
           </div>
           <a
