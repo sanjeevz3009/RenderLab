@@ -11,16 +11,14 @@ export function formatMs(ms: number): string {
 }
 
 // Map a 0-100 score to a Tailwind text colour class
-export function scoreToColor(score: number, invert = false): string {
-  const s = invert ? 100 - score : score;
-  if (s >= 80) return "text-emerald-600";
-  if (s >= 60) return "text-amber-600";
+export function scoreToColor(score: number): string {
+  if (score >= 80) return "text-emerald-600";
+  if (score >= 60) return "text-amber-600";
   return "text-red-500";
 }
 
-export function scoreToBg(score: number, invert = false): string {
-  const s = invert ? 100 - score : score;
-  if (s >= 80) return "bg-emerald-500";
-  if (s >= 60) return "bg-amber-500";
+export function scoreToBg(score: number): string {
+  if (score >= 80) return "bg-emerald-500";
+  if (score >= 60) return "bg-amber-500";
   return "bg-red-500";
 }

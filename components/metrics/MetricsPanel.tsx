@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { buildSimulation } from "@/lib/simulation/engine";
+import { useShallow } from "zustand/react/shallow";
+import { buildSimulation } from "@/lib/simulation-engine";
 import { useLabStore } from "@/lib/store";
 import { formatMs, scoreToBg, scoreToColor } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -58,7 +59,7 @@ interface ScoreGaugeProps {
 }
 
 function ScoreGauge({ label, score, description, invert }: ScoreGaugeProps) {
-  const displayScore = invert ? Math.round(score) : Math.round(score);
+  const displayScore = Math.round(score);
   const colorScore = invert ? 100 - score : score;
 
   return (
@@ -79,7 +80,9 @@ function ScoreGauge({ label, score, description, invert }: ScoreGaugeProps) {
 }
 
 export function MetricsPanel() {
-  const { activeStrategy, config } = useLabStore();
+  const { activeStrategy, config } = useLabStore(
+    useShallow((s) => ({ activeStrategy: s.activeStrategy, config: s.config })),
+  );
   const result = useMemo(
     () => buildSimulation(activeStrategy, config),
     [activeStrategy, config],

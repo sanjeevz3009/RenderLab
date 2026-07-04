@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { useShallow } from "zustand/react/shallow";
 import { useLabStore } from "@/lib/store";
 import { SCENARIO_MAP } from "@/lib/scenarios";
 import { STRATEGY_MAP } from "@/lib/strategies";
@@ -31,7 +32,12 @@ const VERDICT_STYLES = {
 };
 
 export function ScenarioVerdict() {
-  const { activeStrategy, activeScenario } = useLabStore();
+  const { activeStrategy, activeScenario } = useLabStore(
+    useShallow((s) => ({
+      activeStrategy: s.activeStrategy,
+      activeScenario: s.activeScenario,
+    })),
+  );
   const strategy = STRATEGY_MAP[activeStrategy];
 
   if (activeScenario === "custom") {
@@ -84,7 +90,13 @@ export function ScenarioVerdict() {
 
 // Full comparison table across all strategies for the active scenario
 export function ScenarioComparisonTable() {
-  const { activeScenario, setStrategy, activeStrategy } = useLabStore();
+  const { activeScenario, setStrategy, activeStrategy } = useLabStore(
+    useShallow((s) => ({
+      activeScenario: s.activeScenario,
+      setStrategy: s.setStrategy,
+      activeStrategy: s.activeStrategy,
+    })),
+  );
 
   if (activeScenario === "custom") return null;
   const scenario = SCENARIO_MAP[activeScenario];
@@ -105,6 +117,7 @@ export function ScenarioComparisonTable() {
             <button
               key={sid}
               onClick={() => setStrategy(sid)}
+              aria-pressed={isActive}
               className={cn(
                 "w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 transition-all duration-150",
                 isActive

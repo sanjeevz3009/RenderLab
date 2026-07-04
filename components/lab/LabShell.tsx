@@ -14,7 +14,7 @@ import { FlowVisualiser } from "@/components/visualiser/FlowVisualiser";
 import { MetricsPanel } from "@/components/metrics/MetricsPanel";
 
 export function LabShell() {
-  const { activeStrategy } = useLabStore();
+  const activeStrategy = useLabStore((s) => s.activeStrategy);
   const strategy = STRATEGY_MAP[activeStrategy];
 
   return (

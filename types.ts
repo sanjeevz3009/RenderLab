@@ -104,7 +104,6 @@ export interface LabState {
   isRunning: boolean;
   isComplete: boolean;
   isPaused: boolean;
-  completedStepIds: string[];
   currentStepIndex: number;
 
   setStrategy: (id: StrategyId) => void;

@@ -1,11 +1,17 @@
 "use client";
 
+import { useShallow } from "zustand/react/shallow";
 import { SCENARIOS } from "@/lib/scenarios";
 import { useLabStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export function ScenarioPicker() {
-  const { activeScenario, setScenario } = useLabStore();
+  const { activeScenario, setScenario } = useLabStore(
+    useShallow((s) => ({
+      activeScenario: s.activeScenario,
+      setScenario: s.setScenario,
+    })),
+  );
 
   return (
     <div className="space-y-2">
@@ -19,6 +25,7 @@ export function ScenarioPicker() {
             <button
               key={sc.id}
               onClick={() => setScenario(sc.id)}
+              aria-pressed={isActive}
               className={cn(
                 "flex items-center gap-2 px-3 py-2.5 rounded-lg border-2 text-left transition-all duration-150 text-sm",
                 isActive

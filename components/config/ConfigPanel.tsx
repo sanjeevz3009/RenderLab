@@ -1,8 +1,13 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useLabStore } from "@/lib/store";
 
+const COMMIT_DELAY_MS = 120;
+
 interface SliderProps {
+  id: string;
   label: string;
   description: string;
   value: number;
@@ -14,6 +19,7 @@ interface SliderProps {
 }
 
 function ConfigSlider({
+  id,
   label,
   description,
   value,
@@ -23,21 +29,48 @@ function ConfigSlider({
   format,
   onChange,
 }: SliderProps) {
+  const [localValue, setLocalValue] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+  const commitTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Adjust local state when the store's committed value changes externally
+  // (e.g. a scenario switch), without an Effect - see
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setLocalValue(value);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (commitTimerRef.current) clearTimeout(commitTimerRef.current);
+    };
+  }, []);
+
+  function handleChange(v: number) {
+    setLocalValue(v);
+    if (commitTimerRef.current) clearTimeout(commitTimerRef.current);
+    commitTimerRef.current = setTimeout(() => onChange(v), COMMIT_DELAY_MS);
+  }
+
   return (
     <div className="space-y-1.5">
       <div className="flex items-baseline justify-between">
-        <label className="text-sm font-semibold text-slate-700">{label}</label>
+        <label htmlFor={id} className="text-sm font-semibold text-slate-700">
+          {label}
+        </label>
         <span className="text-sm font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
-          {format(value)}
+          {format(localValue)}
         </span>
       </div>
       <input
+        id={id}
         type="range"
         min={min}
         max={max}
         step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
+        value={localValue}
+        onChange={(e) => handleChange(Number(e.target.value))}
         className="w-full accent-slate-900 h-1.5"
       />
       <p className="text-xs text-slate-400 leading-snug">{description}</p>
@@ -53,7 +86,9 @@ function formatDataChange(v: number): string {
 }
 
 export function ConfigPanel() {
-  const { config, updateConfig } = useLabStore();
+  const { config, updateConfig } = useLabStore(
+    useShallow((s) => ({ config: s.config, updateConfig: s.updateConfig })),
+  );
 
   return (
     <div className="space-y-5">
@@ -62,6 +97,7 @@ export function ConfigPanel() {
       </p>
 
       <ConfigSlider
+        id="config-data-change-interval"
         label="Data change frequency"
         description="How often your content updates. Affects whether cached pages go stale."
         value={config.dataChangeInterval}
@@ -73,6 +109,7 @@ export function ConfigPanel() {
       />
 
       <ConfigSlider
+        id="config-server-latency"
         label="Server latency"
         description="Time for the server to fetch data from the database."
         value={config.serverLatency}
@@ -84,6 +121,7 @@ export function ConfigPanel() {
       />
 
       <ConfigSlider
+        id="config-js-bundle-kb"
         label="JS bundle size"
         description="Total JavaScript shipped to the browser. Directly hurts CSR performance."
         value={config.jsBundleKb}
@@ -95,6 +133,7 @@ export function ConfigPanel() {
       />
 
       <ConfigSlider
+        id="config-isr-revalidate"
         label="ISR revalidation window"
         description="How long ISR keeps a cached page before triggering a background regeneration."
         value={config.isrRevalidate}
@@ -106,6 +145,7 @@ export function ConfigPanel() {
       />
 
       <ConfigSlider
+        id="config-site-page-count"
         label="Page count"
         description="Total pages in the site. Affects SSG and ISR build times."
         value={config.sitePageCount}
@@ -117,6 +157,7 @@ export function ConfigPanel() {
       />
 
       <ConfigSlider
+        id="config-daily-visitors"
         label="Daily visitors"
         description="Affects SSR infrastructure costs and CDN pressure."
         value={config.dailyVisitors}

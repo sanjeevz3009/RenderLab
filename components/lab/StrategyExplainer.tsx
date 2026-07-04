@@ -125,7 +125,7 @@ const CONTENT: Record<
 };
 
 export function StrategyExplainer() {
-  const { activeStrategy } = useLabStore();
+  const activeStrategy = useLabStore((s) => s.activeStrategy);
   const strategy = STRATEGY_MAP[activeStrategy];
   const content = CONTENT[activeStrategy];
 

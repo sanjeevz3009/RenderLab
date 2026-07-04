@@ -1,6 +1,7 @@
 import { useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { buildSimulation } from "@/lib/simulation/engine";
+import { useShallow } from "zustand/react/shallow";
+import { buildSimulation } from "@/lib/simulation-engine";
 import { useLabStore } from "@/lib/store";
 import { formatMs } from "@/lib/utils";
 import type { ActorId } from "@/types";
@@ -72,7 +73,23 @@ export function FlowVisualiser() {
     completeSimulation,
     resetSimulation,
     startSimulation,
-  } = useLabStore();
+  } = useLabStore(
+    useShallow((s) => ({
+      activeStrategy: s.activeStrategy,
+      config: s.config,
+      isRunning: s.isRunning,
+      isComplete: s.isComplete,
+      isPaused: s.isPaused,
+      currentStepIndex: s.currentStepIndex,
+      advanceStep: s.advanceStep,
+      rewindStep: s.rewindStep,
+      pauseSimulation: s.pauseSimulation,
+      resumeSimulation: s.resumeSimulation,
+      completeSimulation: s.completeSimulation,
+      resetSimulation: s.resetSimulation,
+      startSimulation: s.startSimulation,
+    })),
+  );
 
   const result = useMemo(
     () => buildSimulation(activeStrategy, config),
@@ -86,6 +103,19 @@ export function FlowVisualiser() {
   ];
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const restartTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+    };
+  }, []);
+
+  function restartSimulation() {
+    resetSimulation();
+    if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+    restartTimerRef.current = setTimeout(() => startSimulation(), 50);
+  }
 
   useEffect(() => {
     if (!isRunning || isPaused) {
@@ -118,8 +148,11 @@ export function FlowVisualiser() {
   ]);
 
   const currentStep =
-    isRunning && currentStepIndex >= 0 ? timeline[currentStepIndex] : null;
-  const completedSteps = isRunning ? timeline.slice(0, currentStepIndex) : [];
+    (isRunning || isComplete) && currentStepIndex >= 0
+      ? (timeline[currentStepIndex] ?? null)
+      : null;
+  const completedSteps =
+    isRunning || isComplete ? timeline.slice(0, currentStepIndex) : [];
 
   const actorCount = actors.length;
 
@@ -361,8 +394,9 @@ export function FlowVisualiser() {
         </p>
         <div className="flex gap-1.5 flex-wrap">
           {timeline.map((step, idx) => {
-            const isDone = isRunning && idx < currentStepIndex;
-            const isCurrent = isRunning && idx === currentStepIndex;
+            const isDone = (isRunning || isComplete) && idx < currentStepIndex;
+            const isCurrent =
+              (isRunning || isComplete) && idx === currentStepIndex;
             return (
               <div
                 key={step.id}
@@ -396,10 +430,7 @@ export function FlowVisualiser() {
       <div className="flex gap-2">
         {!isRunning && !isComplete ? (
           <button
-            onClick={() => {
-              resetSimulation();
-              setTimeout(() => startSimulation(), 50);
-            }}
+            onClick={restartSimulation}
             className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all"
             style={{ backgroundColor: strategy.accentHex }}
           >
@@ -407,10 +438,7 @@ export function FlowVisualiser() {
           </button>
         ) : isComplete ? (
           <button
-            onClick={() => {
-              resetSimulation();
-              setTimeout(() => startSimulation(), 50);
-            }}
+            onClick={restartSimulation}
             className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all"
             style={{ backgroundColor: strategy.accentHex }}
           >
@@ -421,6 +449,7 @@ export function FlowVisualiser() {
             <button
               onClick={rewindStep}
               disabled={currentStepIndex === 0}
+              aria-label="Rewind one step"
               className="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               ‹‹
@@ -435,12 +464,14 @@ export function FlowVisualiser() {
             <button
               onClick={advanceStep}
               disabled={currentStepIndex >= timeline.length - 1}
+              aria-label="Advance one step"
               className="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               ››
             </button>
             <button
               onClick={resetSimulation}
+              aria-label="Reset simulation"
               className="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
             >
               ■

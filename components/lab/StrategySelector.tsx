@@ -1,12 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useShallow } from "zustand/react/shallow";
 import { STRATEGIES } from "@/lib/strategies";
 import { useLabStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export function StrategySelector() {
-  const { activeStrategy, setStrategy } = useLabStore();
+  const { activeStrategy, setStrategy } = useLabStore(
+    useShallow((s) => ({
+      activeStrategy: s.activeStrategy,
+      setStrategy: s.setStrategy,
+    })),
+  );
 
   return (
     <div className="flex gap-2 flex-wrap">
@@ -16,6 +22,7 @@ export function StrategySelector() {
           <button
             key={s.id}
             onClick={() => setStrategy(s.id)}
+            aria-pressed={isActive}
             className={cn(
               "relative px-4 py-2 rounded-lg text-sm font-mono font-semibold transition-all duration-200 border-2",
               isActive

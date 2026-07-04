@@ -9,7 +9,6 @@ export const useLabStore = create<LabState>((set) => ({
   isRunning: false,
   isComplete: false,
   isPaused: false,
-  completedStepIds: [],
   currentStepIndex: -1,
 
   setStrategy: (id: StrategyId) =>
@@ -18,13 +17,18 @@ export const useLabStore = create<LabState>((set) => ({
       isRunning: false,
       isComplete: false,
       isPaused: false,
-      completedStepIds: [],
       currentStepIndex: -1,
     }),
 
   setScenario: (id: ScenarioId | "custom") => {
     if (id === "custom") {
-      set({ activeScenario: "custom" });
+      set({
+        activeScenario: "custom",
+        isRunning: false,
+        isComplete: false,
+        isPaused: false,
+        currentStepIndex: -1,
+      });
       return;
     }
     const scenario = SCENARIOS.find((s) => s.id === id);
@@ -35,7 +39,6 @@ export const useLabStore = create<LabState>((set) => ({
       isRunning: false,
       isComplete: false,
       isPaused: false,
-      completedStepIds: [],
       currentStepIndex: -1,
     });
   },
@@ -47,7 +50,6 @@ export const useLabStore = create<LabState>((set) => ({
       isRunning: false,
       isComplete: false,
       isPaused: false,
-      completedStepIds: [],
       currentStepIndex: -1,
     })),
 
@@ -56,7 +58,6 @@ export const useLabStore = create<LabState>((set) => ({
       isRunning: true,
       isComplete: false,
       isPaused: false,
-      completedStepIds: [],
       currentStepIndex: 0,
     }),
 
@@ -80,7 +81,6 @@ export const useLabStore = create<LabState>((set) => ({
       isRunning: false,
       isComplete: false,
       isPaused: false,
-      completedStepIds: [],
       currentStepIndex: -1,
     }),
 }));
