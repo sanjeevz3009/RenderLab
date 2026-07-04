@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --font-inter: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+body {
+  font-family: var(--font-inter);
+}
+
+.font-sans {
+  font-family: var(--font-inter);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Range input styling */
+input[type="range"] {
+  cursor: pointer;
+}
