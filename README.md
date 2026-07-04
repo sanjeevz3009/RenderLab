@@ -1,6 +1,6 @@
 # render.lab
 
-> Interactive rendering strategy simulator — built alongside [Yet Another Front-end Rendering Strategies Article](https://sanj.ninja/blog/yet-another-front-end-rendering-strategies-article/) by Sanjeev Srithevan.
+> Interactive rendering strategy simulator - built alongside [Yet Another Front-end Rendering Strategies Article](https://sanj.ninja/blog/yet-another-front-end-rendering-strategies-article/) by Sanjeev Srithevan.
 
 An interactive Next.js application that lets users feel the difference between **SSG, SSR, ISR, CSR and PPR** through animated request lifecycle visualisations, configurable scenarios, and live simulated metrics.
 
@@ -40,7 +40,7 @@ Live simulated performance metrics that react to config changes:
 - Estimated build time for applicable strategies
 
 ### Strategy explainer
-Deep-dive per strategy: what it is, where it shines, trade-offs, and common use cases — all grounded in the article.
+Deep-dive per strategy: what it is, where it shines, trade-offs, and common use cases - all grounded in the article.
 
 ---
 
@@ -99,7 +99,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — it redirects to `/lab`.
+Open [http://localhost:3000](http://localhost:3000) - it redirects to `/lab`.
 
 ---
 
@@ -117,8 +117,8 @@ No environment variables needed. The entire simulation is client-side - the app 
 
 ### Add a new scenario
 Edit `data/scenarios.ts`. Add a new entry to the `SCENARIOS` array with:
-- `config` — realistic SimConfig values
-- `recommendations` — a verdict + reason for all 5 strategies
+- `config` - realistic SimConfig values
+- `recommendations` - a verdict + reason for all 5 strategies
 
 ### Add a new rendering strategy
 1. Add to `StrategyId` union in `types/index.ts`
@@ -129,7 +129,7 @@ Edit `data/scenarios.ts`. Add a new entry to the `SCENARIOS` array with:
 6. Add explainer content in `components/lab/StrategyExplainer.tsx`
 
 ### Tune simulation fidelity
-All timing is in `lib/simulation/engine.ts`. The timeline builders and metrics calculator use the `SimConfig` values to produce realistic numbers — adjust the multipliers there to calibrate against real-world benchmarks.
+All timing is in `lib/simulation/engine.ts`. The timeline builders and metrics calculator use the `SimConfig` values to produce realistic numbers - adjust the multipliers there to calibrate against real-world benchmarks.
 
 ---
 
@@ -138,4 +138,4 @@ All timing is in `lib/simulation/engine.ts`. The timeline builders and metrics c
 This simulator is a companion to:
 
 **[Yet Another Front-end Rendering Strategies Article](https://sanj.ninja/blog/yet-another-front-end-rendering-strategies-article/)**  
-*A practical beginner-friendly guide to SSR, CSR, SSG, ISR and PPR — by Sanjeev Srithevan*
+*A practical beginner-friendly guide to SSR, CSR, SSG, ISR and PPR - by Sanjeev Srithevan*

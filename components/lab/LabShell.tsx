@@ -103,7 +103,7 @@ export function LabShell() {
                 Yet Another Front-end Rendering Strategies Article
               </p>
               <p className="text-slate-400 text-xs leading-relaxed">
-                A practical guide to SSR, CSR, SSG, ISR and PPR — written by
+                A practical guide to SSR, CSR, SSG, ISR and PPR - written by
                 Sanjeev Srithevan.
               </p>
               <a
