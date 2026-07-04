@@ -170,22 +170,141 @@ export function FlowVisualiser() {
     <div className="space-y-4">
       {/* Actor lane diagram */}
       <div
-        className="relative bg-slate-50 rounded-xl border border-slate-200 overflow-hidden"
+        className="relative bg-slate-50 rounded-xl border border-slate-200"
         style={{ height: 220 }}
       >
-        {/* Vertical lane lines */}
-        {actors.map((actorId) => {
-          const x = getActorX(actorId);
-          return (
-            <div
-              key={actorId}
-              className="absolute top-14 bottom-0 w-px bg-slate-200"
-              style={{ left: `${x}%`, transform: "translateX(-50%)" }}
-            />
-          );
-        })}
+        {/* Clipped layer: lane lines, arrows, payload badge, status overlays */}
+        <div className="absolute inset-0 rounded-xl overflow-hidden">
+          {/* Vertical lane lines */}
+          {actors.map((actorId) => {
+            const x = getActorX(actorId);
+            return (
+              <div
+                key={actorId}
+                className="absolute top-14 bottom-0 w-px bg-slate-200"
+                style={{ left: `${x}%`, transform: "translateX(-50%)" }}
+              />
+            );
+          })}
 
-        {/* Actor nodes */}
+          {/* SVG arrow canvas */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            preserveAspectRatio="none"
+            viewBox="0 0 100 100"
+          >
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="6"
+                markerHeight="6"
+                refX="5"
+                refY="3"
+                orient="auto"
+              >
+                <path d="M0,0 L0,6 L6,3 z" fill={strategy.accentHex} />
+              </marker>
+            </defs>
+
+            {/* Completed steps as faded lines */}
+            {completedSteps.map((step) => {
+              const sx = getActorX(step.from);
+              const ex = getActorX(step.to);
+              if (sx === ex) return null;
+              return (
+                <line
+                  key={step.id}
+                  x1={`${sx}%`}
+                  y1="55%"
+                  x2={`${ex}%`}
+                  y2="55%"
+                  stroke={PAYLOAD_COLOURS[step.payload]}
+                  strokeWidth="0.5"
+                  strokeDasharray="2,2"
+                  opacity={0.25}
+                />
+              );
+            })}
+
+            {/* Animated current step arrow */}
+            {currentStep && !isSelf && (
+              <motion.line
+                key={currentStep.id}
+                x1={`${fromX}%`}
+                y1="55%"
+                x2={`${toX}%`}
+                y2="55%"
+                stroke={PAYLOAD_COLOURS[currentStep.payload]}
+                strokeWidth="1.5"
+                markerEnd="url(#arrowhead)"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{
+                  duration: Math.max(
+                    (MIN_STEP_MS / 1000) * 0.6,
+                    currentStep.durationMs / 1000,
+                  ),
+                  ease: "linear",
+                }}
+              />
+            )}
+          </svg>
+
+          {/* Payload badge travelling along the arrow */}
+          <AnimatePresence>
+            {currentStep && !isSelf && (
+              <motion.div
+                key={currentStep.id + "-badge"}
+                className="absolute text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md"
+                style={{
+                  backgroundColor: PAYLOAD_COLOURS[currentStep.payload],
+                  top: "calc(55% - 10px)",
+                  left: `${fromX}%`,
+                }}
+                animate={{ left: `${toX}%` }}
+                transition={{
+                  duration: Math.max(
+                    (MIN_STEP_MS / 1000) * 0.6,
+                    currentStep.durationMs / 1000,
+                  ),
+                  ease: "linear",
+                }}
+              >
+                {PAYLOAD_LABELS[currentStep.payload]}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Status overlays */}
+          {!isRunning && !isComplete && (
+            <div className="absolute inset-0 flex items-end justify-center pb-3 pointer-events-none">
+              <span className="text-xs text-slate-400 font-medium">
+                Press Run to animate the request lifecycle
+              </span>
+            </div>
+          )}
+          {isPaused && (
+            <div className="absolute inset-0 flex items-end justify-center pb-3 pointer-events-none">
+              <span className="text-xs text-amber-500 font-semibold">
+                ⏸ Paused
+              </span>
+            </div>
+          )}
+          {isComplete && (
+            <motion.div
+              className="absolute inset-0 flex items-end justify-center pb-3 pointer-events-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <span className="text-xs font-semibold text-emerald-600">
+                ✓ Simulation complete
+              </span>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Actor nodes - rendered above the clipped layer so long labels
+            near the diagram edges aren't cut off on narrow viewports */}
         {actors.map((actorId) => {
           const cfg = ACTOR_CONFIG[actorId];
           const x = getActorX(actorId);
@@ -219,127 +338,12 @@ export function FlowVisualiser() {
               >
                 {cfg.icon}
               </motion.div>
-              <span className="text-xs font-semibold text-slate-600 whitespace-nowrap">
+              <span className="text-xs font-semibold text-slate-600 text-center leading-tight max-w-17.5 sm:max-w-none sm:whitespace-nowrap">
                 {cfg.label}
               </span>
             </div>
           );
         })}
-
-        {/* SVG arrow canvas */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          preserveAspectRatio="none"
-          viewBox="0 0 100 100"
-        >
-          <defs>
-            <marker
-              id="arrowhead"
-              markerWidth="6"
-              markerHeight="6"
-              refX="5"
-              refY="3"
-              orient="auto"
-            >
-              <path d="M0,0 L0,6 L6,3 z" fill={strategy.accentHex} />
-            </marker>
-          </defs>
-
-          {/* Completed steps as faded lines */}
-          {completedSteps.map((step) => {
-            const sx = getActorX(step.from);
-            const ex = getActorX(step.to);
-            if (sx === ex) return null;
-            return (
-              <line
-                key={step.id}
-                x1={`${sx}%`}
-                y1="55%"
-                x2={`${ex}%`}
-                y2="55%"
-                stroke={PAYLOAD_COLOURS[step.payload]}
-                strokeWidth="0.5"
-                strokeDasharray="2,2"
-                opacity={0.25}
-              />
-            );
-          })}
-
-          {/* Animated current step arrow */}
-          {currentStep && !isSelf && (
-            <motion.line
-              key={currentStep.id}
-              x1={`${fromX}%`}
-              y1="55%"
-              x2={`${toX}%`}
-              y2="55%"
-              stroke={PAYLOAD_COLOURS[currentStep.payload]}
-              strokeWidth="1.5"
-              markerEnd="url(#arrowhead)"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 1 }}
-              transition={{
-                duration: Math.max(
-                  (MIN_STEP_MS / 1000) * 0.6,
-                  currentStep.durationMs / 1000,
-                ),
-                ease: "linear",
-              }}
-            />
-          )}
-        </svg>
-
-        {/* Payload badge travelling along the arrow */}
-        <AnimatePresence>
-          {currentStep && !isSelf && (
-            <motion.div
-              key={currentStep.id + "-badge"}
-              className="absolute text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md"
-              style={{
-                backgroundColor: PAYLOAD_COLOURS[currentStep.payload],
-                top: "calc(55% - 10px)",
-                left: `${fromX}%`,
-              }}
-              animate={{ left: `${toX}%` }}
-              transition={{
-                duration: Math.max(
-                  (MIN_STEP_MS / 1000) * 0.6,
-                  currentStep.durationMs / 1000,
-                ),
-                ease: "linear",
-              }}
-            >
-              {PAYLOAD_LABELS[currentStep.payload]}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Status overlays */}
-        {!isRunning && !isComplete && (
-          <div className="absolute inset-0 flex items-end justify-center pb-3 pointer-events-none">
-            <span className="text-xs text-slate-400 font-medium">
-              Press Run to animate the request lifecycle
-            </span>
-          </div>
-        )}
-        {isPaused && (
-          <div className="absolute inset-0 flex items-end justify-center pb-3 pointer-events-none">
-            <span className="text-xs text-amber-500 font-semibold">
-              ⏸ Paused
-            </span>
-          </div>
-        )}
-        {isComplete && (
-          <motion.div
-            className="absolute inset-0 flex items-end justify-center pb-3 pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <span className="text-xs font-semibold text-emerald-600">
-              ✓ Simulation complete
-            </span>
-          </motion.div>
-        )}
       </div>
 
       {/* Step detail card */}

@@ -39,52 +39,55 @@ export function ScenarioVerdict() {
     })),
   );
   const strategy = STRATEGY_MAP[activeStrategy];
-
-  if (activeScenario === "custom") {
-    return (
-      <div className="rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-400 text-center">
-        Select a scenario above to see how {strategy.label} fits.
-      </div>
-    );
-  }
-
-  const scenario = SCENARIO_MAP[activeScenario];
-  if (!scenario) return null;
-
-  const rec = scenario.recommendations[activeStrategy];
-  const styles = VERDICT_STYLES[rec.verdict];
+  const scenario =
+    activeScenario === "custom" ? null : SCENARIO_MAP[activeScenario];
+  const rec = scenario?.recommendations[activeStrategy];
+  const styles = rec ? VERDICT_STYLES[rec.verdict] : null;
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={`${activeStrategy}-${activeScenario}`}
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className={cn(
-          "rounded-xl border-2 p-4 space-y-2",
-          styles.bg,
-          styles.border,
-        )}
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-lg">{scenario.icon}</span>
-          <span className="font-semibold text-sm text-slate-700">
-            {scenario.label}
-          </span>
-          <span
+    <div className="min-h-36 flex flex-col">
+      <AnimatePresence mode="wait">
+        {scenario && rec && styles ? (
+          <motion.div
+            key={`${activeStrategy}-${activeScenario}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className={cn(
-              "ml-auto text-xs font-bold px-2.5 py-0.5 rounded-full",
-              styles.badge,
+              "flex-1 rounded-xl border-2 p-4 space-y-2",
+              styles.bg,
+              styles.border,
             )}
           >
-            {styles.icon} {styles.label}
-          </span>
-        </div>
-        <p className="text-sm text-slate-600 leading-relaxed">{rec.reason}</p>
-      </motion.div>
-    </AnimatePresence>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{scenario.icon}</span>
+              <span className="font-semibold text-sm text-slate-700">
+                {scenario.label}
+              </span>
+              <span
+                className={cn(
+                  "ml-auto text-xs font-bold px-2.5 py-0.5 rounded-full",
+                  styles.badge,
+                )}
+              >
+                {styles.icon} {styles.label}
+              </span>
+            </div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {rec.reason}
+            </p>
+          </motion.div>
+        ) : (
+          <div
+            key="custom-placeholder"
+            className="flex-1 flex items-center justify-center rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-400 text-center"
+          >
+            Select a scenario above to see how {strategy.label} fits.
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
