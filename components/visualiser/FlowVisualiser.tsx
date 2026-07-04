@@ -15,7 +15,7 @@ const ACTOR_CONFIG: Record<
   browser: { label: "Browser", icon: "🖥️", col: 0 },
   cdn: { label: "CDN / Edge", icon: "⚡", col: 1 },
   edge: { label: "Edge Runtime", icon: "🔷", col: 2 },
-  server: { label: "Origin Server", icon: "🖧", col: 3 },
+  server: { label: "Origin Server", icon: "🏢", col: 3 },
   db: { label: "Database / API", icon: "🗄️", col: 4 },
 };
 
@@ -343,49 +343,51 @@ export function FlowVisualiser() {
       </div>
 
       {/* Step detail card */}
-      <AnimatePresence mode="wait">
-        {currentStep ? (
-          <motion.div
-            key={currentStep.id}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="rounded-xl border border-slate-200 bg-white p-4 space-y-2"
-          >
-            <div className="flex items-center gap-2 flex-wrap">
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
-                style={{
-                  backgroundColor: PAYLOAD_COLOURS[currentStep.payload],
-                }}
-              >
-                {PAYLOAD_LABELS[currentStep.payload]}
-              </span>
-              <span
-                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${PHASE_STYLES[currentStep.phase]?.bg} ${PHASE_STYLES[currentStep.phase]?.text}`}
-              >
-                {currentStep.phase} phase
-              </span>
-              <span className="text-xs text-slate-400 font-mono ml-auto">
-                {formatMs(currentStep.durationMs)}
-              </span>
+      <div className="flex flex-col min-h-48">
+        <AnimatePresence mode="wait">
+          {currentStep ? (
+            <motion.div
+              key={currentStep.id}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex-1 rounded-xl border border-slate-200 bg-white p-4 space-y-2"
+            >
+              <div className="flex items-center gap-2 flex-wrap">
+                <span
+                  className="text-xs font-bold px-2 py-0.5 rounded-full text-white"
+                  style={{
+                    backgroundColor: PAYLOAD_COLOURS[currentStep.payload],
+                  }}
+                >
+                  {PAYLOAD_LABELS[currentStep.payload]}
+                </span>
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${PHASE_STYLES[currentStep.phase]?.bg} ${PHASE_STYLES[currentStep.phase]?.text}`}
+                >
+                  {currentStep.phase} phase
+                </span>
+                <span className="text-xs text-slate-400 font-mono ml-auto">
+                  {formatMs(currentStep.durationMs)}
+                </span>
+              </div>
+              <p className="font-semibold text-sm text-slate-900">
+                {currentStep.label}
+              </p>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {currentStep.description}
+              </p>
+            </motion.div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-400 text-center">
+              {isComplete
+                ? "All steps complete. Reset to run again or change the config."
+                : "Step details will appear here during simulation."}
             </div>
-            <p className="font-semibold text-sm text-slate-900">
-              {currentStep.label}
-            </p>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              {currentStep.description}
-            </p>
-          </motion.div>
-        ) : (
-          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-400 text-center">
-            {isComplete
-              ? "All steps complete. Reset to run again or change the config."
-              : "Step details will appear here during simulation."}
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Timeline scrubber */}
       <div className="space-y-2">
