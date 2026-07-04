@@ -19,7 +19,7 @@ export const SCENARIOS: Scenario[] = [
       ssg: {
         verdict: "great",
         reason:
-          "Content is near-static. Pre-built pages served instantly from CDN edge. Perfect match - your article's go-to example for SSG.",
+          "Content is near-static. Pre-built pages served instantly from CDN edge.",
       },
       ssr: {
         verdict: "poor",
@@ -71,7 +71,7 @@ export const SCENARIOS: Scenario[] = [
       isr: {
         verdict: "great",
         reason:
-          "Your article's best ISR example. Static-speed product pages, background refresh when prices change. Scales to millions of SKUs.",
+          "Static-speed product pages, background refresh when prices change. Scales to millions of SKUs.",
       },
       csr: {
         verdict: "ok",
@@ -160,7 +160,7 @@ export const SCENARIOS: Scenario[] = [
       csr: {
         verdict: "great",
         reason:
-          "Your article's prime CSR example. App-like interactions, real-time updates, complex state. Users spend hours here - initial load cost amortises.",
+          "App-like interactions, real-time updates, complex state. Users spend hours here - initial load cost amortises.",
       },
       ppr: {
         verdict: "ok",
@@ -187,7 +187,7 @@ export const SCENARIOS: Scenario[] = [
       ssg: {
         verdict: "great",
         reason:
-          "150 posts, weekly publishes. Build takes seconds. Pages cached at CDN edge indefinitely. This is exactly what SSG was designed for - like sanj.ninja.",
+          "150 posts, weekly publishes. Build takes seconds. Pages cached at CDN edge indefinitely. This is exactly what SSG was designed for.",
       },
       ssr: {
         verdict: "poor",
@@ -234,7 +234,7 @@ export const SCENARIOS: Scenario[] = [
       ssr: {
         verdict: "great",
         reason:
-          "Your article lists social feeds as the canonical SSR use case. Per-request render gives each user a fresh, personalised HTML response.",
+          "Per-request render gives each user a fresh, personalised HTML response.",
       },
       isr: {
         verdict: "poor",
